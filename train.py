@@ -649,6 +649,11 @@ def main():
     parser.add_argument('--image_correspondence_min_rating', type=int, help='Minimum image correspondence rating of images per sample')
     parser.add_argument('--visual_dependency_min_rating', type=int, help='Minimum visual dependency rating of images per sample')
     parser.add_argument('--formatting_min_rating', type=int, help='Minimum formatting rating of images per sample')
+    parser.add_argument('--lm_model_type', type=str, help='HuggingFace model ID for the language model')
+    parser.add_argument('--lm_tokenizer', type=str, help='HuggingFace tokenizer ID for the language model')
+    parser.add_argument('--batch_size', type=int, help='Batch size per GPU')
+    parser.add_argument('--gradient_accumulation_steps', type=int, help='Gradient accumulation steps')
+    parser.add_argument('--max_training_steps', type=int, help='Max training steps')
 
     args = parser.parse_args()
 
@@ -677,6 +682,22 @@ def main():
         train_cfg.visual_dependency_min_rating = args.visual_dependency_min_rating
     if args.formatting_min_rating is not None:
         train_cfg.formatting_min_rating = args.formatting_min_rating
+    
+    if args.lm_model_type is not None:
+        vlm_cfg.lm_model_type = args.lm_model_type
+        # Default tokenizer to model type if not specified
+        if args.lm_tokenizer is None:
+            vlm_cfg.lm_tokenizer = args.lm_model_type
+            
+    if args.lm_tokenizer is not None:
+        vlm_cfg.lm_tokenizer = args.lm_tokenizer
+
+    if args.batch_size is not None:
+        train_cfg.batch_size = args.batch_size
+    if args.gradient_accumulation_steps is not None:
+        train_cfg.gradient_accumulation_steps = args.gradient_accumulation_steps
+    if args.max_training_steps is not None:
+        train_cfg.max_training_steps = args.max_training_steps
 
     if args.resume_from_vlm_checkpoint and args.vlm_checkpoint_path is not None:
         train_cfg.resume_from_vlm_checkpoint = True
