@@ -190,10 +190,11 @@ class LanguageModelGroupedQueryAttention(nn.Module):
 
         self.n_kv_groups = self.n_heads // self.n_kv_heads
         self.head_dim = self.embd_dim // self.n_heads
+        self.attention_bias = getattr(cfg, 'lm_attention_bias', False)
 
-        self.q_proj = nn.Linear(self.embd_dim, self.embd_dim, bias=False)
-        self.k_proj = nn.Linear(self.embd_dim, self.head_dim * self.n_kv_heads, bias=False)
-        self.v_proj = nn.Linear(self.embd_dim, self.head_dim * self.n_kv_heads, bias=False)
+        self.q_proj = nn.Linear(self.embd_dim, self.embd_dim, bias=self.attention_bias)
+        self.k_proj = nn.Linear(self.embd_dim, self.head_dim * self.n_kv_heads, bias=self.attention_bias)
+        self.v_proj = nn.Linear(self.embd_dim, self.head_dim * self.n_kv_heads, bias=self.attention_bias)
         self.out_proj = nn.Linear(self.embd_dim, self.embd_dim, bias=False)
 
         self.attn_dropout = nn.Dropout(self.dropout)
@@ -560,7 +561,8 @@ class LanguageModel(nn.Module):
         # We're keeping our own vocab size in cfg, but checking it's larger than original
         if hasattr(cfg, 'lm_vocab_size'):
             if cfg.lm_vocab_size < original_vocab_size:
-                raise ValueError(f"Config vocab size ({cfg.lm_vocab_size}) is smaller than pretrained model vocab size ({original_vocab_size})")
+                print(f"Warning: Config vocab size ({cfg.lm_vocab_size}) is smaller than pretrained model vocab size ({original_vocab_size}). Updating config.")
+                cfg.lm_vocab_size = original_vocab_size + getattr(cfg, 'extra_token_amount', 0)
             # print(f"Using vocabulary size: {cfg.lm_vocab_size}")
         else:
             # If not specified, use the original
@@ -571,6 +573,16 @@ class LanguageModel(nn.Module):
         cfg.lm_n_kv_heads = hf_config.num_key_value_heads
         cfg.lm_dropout = hf_config.attention_dropout
         cfg.lm_n_blocks = hf_config.num_hidden_layers
+        
+        # Check for attention bias (common in Qwen2, not in Llama)
+        if hasattr(hf_config, 'attention_bias'):
+            cfg.lm_attention_bias = hf_config.attention_bias
+        else:
+            cfg.lm_attention_bias = False
+            
+        # Check for weight tying
+        if hasattr(hf_config, 'tie_word_embeddings'):
+            cfg.lm_tie_weights = hf_config.tie_word_embeddings
         
         # Create our model with potentially larger vocabulary
         model = cls(cfg)
@@ -608,6 +620,14 @@ class LanguageModel(nn.Module):
                 f"{layer_prefix}input_layernorm.weight": f"{block_prefix}norm1.weight",
                 f"{layer_prefix}post_attention_layernorm.weight": f"{block_prefix}norm2.weight"
             })
+            
+            # Add bias mappings if attention_bias is enabled
+            if cfg.lm_attention_bias:
+                 mapping.update({
+                    f"{layer_prefix}self_attn.q_proj.bias": f"{block_prefix}attn.q_proj.bias",
+                    f"{layer_prefix}self_attn.k_proj.bias": f"{block_prefix}attn.k_proj.bias",
+                    f"{layer_prefix}self_attn.v_proj.bias": f"{block_prefix}attn.v_proj.bias",
+                })
         
         # Special handling for token embeddings with extended vocabulary
         has_extended_embeddings = False
