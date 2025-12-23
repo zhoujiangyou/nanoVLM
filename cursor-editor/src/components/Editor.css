@@ -1,0 +1,93 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+}
+
+.tabs {
+  display: flex;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3e3e42;
+  overflow-x: auto;
+  overflow-y: hidden;
+  height: 35px;
+}
+
+.tabs::-webkit-scrollbar {
+  height: 0;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background-color: #2d2d2d;
+  border-right: 1px solid #3e3e42;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background-color 0.1s ease;
+  min-width: fit-content;
+}
+
+.tab:hover {
+  background-color: #333333;
+}
+
+.tab.active {
+  background-color: #1e1e1e;
+  border-top: 1px solid #007acc;
+}
+
+.tab-name {
+  font-size: 13px;
+  color: #cccccc;
+}
+
+.tab-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+}
+
+.tab-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.editor-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.editor-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #888;
+}
+
+.empty-content {
+  text-align: center;
+}
+
+.empty-content h2 {
+  font-size: 24px;
+  font-weight: 300;
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.empty-content p {
+  font-size: 14px;
+  color: #888;
+}

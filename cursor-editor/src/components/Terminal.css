@@ -1,0 +1,98 @@
+.terminal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: #1e1e1e;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #252526;
+  border-bottom: 1px solid #3e3e42;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.terminal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.terminal-action {
+  background: none;
+  border: none;
+  color: #cccccc;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transition: background-color 0.1s ease;
+}
+
+.terminal-action:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.terminal-line {
+  margin-bottom: 2px;
+}
+
+.terminal-line.info {
+  color: #4ec9b0;
+}
+
+.terminal-line.command {
+  color: #cccccc;
+}
+
+.terminal-line.output {
+  color: #cccccc;
+}
+
+.terminal-line.error {
+  color: #f48771;
+}
+
+.terminal-line.prompt {
+  color: #4ec9b0;
+  margin-top: 4px;
+}
+
+.terminal-input-line {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.terminal-prompt {
+  color: #4ec9b0;
+  margin-right: 8px;
+}
+
+.terminal-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: #cccccc;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  outline: none;
+}
+
+.terminal-input::selection {
+  background-color: #264f78;
+}
